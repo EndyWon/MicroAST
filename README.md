@@ -1,5 +1,5 @@
 # MicroAST（AAAI 2023）
-**[update 8/28/2022]**
+**[update 12/31/2022]**
 
 Official Pytorch code for ["MicroAST: Towards Super-Fast Ultra-Resolution Arbitrary Style Transfer"](https://arxiv.org/pdf/2211.15313.pdf)
 
