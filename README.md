@@ -7,7 +7,7 @@ Official Pytorch code for ["MicroAST: Towards Super-Fast Ultra-Resolution Arbitr
 
 **MicroAST** is a lightweight model that completely abandons the use of cumbersome pre-trained Deep Convolutional Neural Networks (e.g., VGG) at inference. Instead, two micro encoders (content and style encoders) and one micro decoder are utilized for style transfer. The content encoder aims at extracting the main structure of the content image. The style encoder, coupled with a modulator, encodes the style image into learnable dual-modulation signals that modulate both intermediate features and convolutional filters of the decoder, thus injecting more sophisticated and flexible style signals to guide the stylizations. In addition, to boost the ability of the style encoder to extract more distinct and representative style signals, it also introduces a new style signal contrastive loss. MicroAST is 5-73 times smaller and 6-18 times faster than the state of the art, for the first time enabling super-fast (about 0.5 seconds) arbitrary style transfer at 4K ultra-resolutions. 
 
-![show](https://github.com/EndyWon/MicroAST/blob/main/figures/teaser.jpg)
+![show](https://github.com/EndyWon/MicroAST/blob/main/figures/teaser.pdf)
 
 ## Environment:
 - Python 3.6
