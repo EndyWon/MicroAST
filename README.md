@@ -21,7 +21,6 @@ Official Pytorch code for ["MicroAST: Towards Super-Fast Ultra-Resolution Arbitr
 
 **Test:**
 
-- Download pre-trained models from this [google drive](). Unzip and place them at path `models/`.
 - Test a pair of images:
 
   `python test_microAST.py --content inputs/content/1.jpg --style inputs/style/1.jpg`
