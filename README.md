@@ -1,4 +1,4 @@
-# MicroAST（AAAI 2023）
+# MicroAST（AAAI 2023 Oral）
 **[update 12/31/2022]**
 
 Official Pytorch code for ["MicroAST: Towards Super-Fast Ultra-Resolution Arbitrary Style Transfer"](https://arxiv.org/pdf/2211.15313.pdf)
