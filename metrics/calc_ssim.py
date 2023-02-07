@@ -11,8 +11,8 @@ import os
    stylized images: x_y.jpg (e.g., 1_2.jpg) """
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-content_dir", required=True, help="the directory of content images")
-parser.add_argument("-stylized_dir", required=True, help="the directory of stylized images")
+parser.add_argument("--content_dir", required=True, help="the directory of content images")
+parser.add_argument("--stylized_dir", required=True, help="the directory of stylized images")
 args = parser.parse_args()
 
 
