@@ -13,10 +13,10 @@ import cv2
    stylized images: x_y.jpg (e.g., 1_2.jpg) """
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-content_dir", required=False, help="the directory of content images")
-parser.add_argument("-style_dir", required=True, help="the directory of style images")
-parser.add_argument("-stylized_dir", required=True, help="the directory of stylized images")
-parser.add_argument('-mode', type=int, default=0, help="0 for style loss, 1 for content loss, 2 for both")
+parser.add_argument("--content_dir", help="the directory of content images")
+parser.add_argument("--style_dir", help="the directory of style images")
+parser.add_argument("--stylized_dir", required=True, help="the directory of stylized images")
+parser.add_argument('--mode', type=int, default=0, help="0 for style loss, 1 for content loss, 2 for both")
 args = parser.parse_args()
 
 
