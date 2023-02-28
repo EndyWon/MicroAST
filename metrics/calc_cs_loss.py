@@ -178,7 +178,7 @@ if args.mode == 0 or args.mode == 2:
         loss_s += calc_style_loss(o5_1,s5_1)
 
         print ("Style Loss: {}".format(loss_s/5))
-        loss_s_sum += loss_s/5
+        loss_s_sum += float(loss_s/5)
         count += 1
 
 
@@ -224,7 +224,7 @@ if args.mode == 1 or args.mode == 2:
 
 
         print ("Content Loss: {}".format(loss_c/2))
-        loss_c_sum += loss_c/2
+        loss_c_sum += float(loss_c/2)
         count += 1
 
 
