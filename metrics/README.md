@@ -6,7 +6,7 @@ The files should be organized with the following name format:
 
 - style images: `y.jpg` (e.g., `2.jpg`)
 
-- stylized images: `x_y.jpg` (e.g., `1_2.jpg`)
+- stylized images: `x_stylized_y.jpg` (e.g., `1_stylized_2.jpg`)
 
 
 ### Usage
