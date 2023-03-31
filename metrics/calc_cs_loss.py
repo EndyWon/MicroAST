@@ -10,7 +10,7 @@ import cv2
 """IMPORTANT Note: Files' name format:
    content images: x.jpg (e.g., 1.jpg)
    style images: y.jpg (e.g., 2.jpg)
-   stylized images: x_y.jpg (e.g., 1_2.jpg) """
+   stylized images: x_stylized_y.jpg (e.g., 1_stylized_2.jpg) """
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--content_dir", help="the directory of content images")
@@ -80,7 +80,7 @@ vgg = nn.Sequential(
 )
 
 vgg.eval()
-vgg.load_state_dict(torch.load("model/vgg_normalised.pth"))
+vgg.load_state_dict(torch.load("../models/vgg_normalised.pth"))
 
 
 enc_1 = nn.Sequential(*list(vgg.children())[:4])  # input -> relu1_1
@@ -114,7 +114,7 @@ def calc_content_loss(input, target):
     return torch.nn.MSELoss()(input, target)
 
 def calc_style_loss(input, target):
-    assert (input.size() == target.size())
+    #assert (input.size() == target.size())
     input_mean, input_std = calc_mean_std(input)
     target_mean, target_std = calc_mean_std(target)
     return torch.nn.MSELoss()(input_mean, target_mean) + torch.nn.MSELoss()(input_std, target_std)
@@ -126,110 +126,110 @@ stylized_dir = args.stylized_dir
 
 stylized_files = os.listdir(stylized_dir)
 
+with torch.no_grad():
+    if args.mode == 0 or args.mode == 2:
+        loss_s_sum  = 0.
+        count = 0
 
-if args.mode == 0 or args.mode == 2:
-    loss_s_sum  = 0.
-    count = 0
+        for stylized in stylized_files:
+            stylized_img = cv2.imread(stylized_dir + stylized)   # stylized image
+            # stylized_img = cv2.resize(stylized_img, (256,256))
 
-    for stylized in stylized_files:
-        stylized_img = cv2.imread(stylized_dir + stylized)   # stylized image
-        # stylized_img = cv2.resize(stylized_img, (256,256))
+            name = os.path.splitext(stylized)[0].split("_")  # parse the style image's name
 
-        name = os.path.splitext(stylized)[0].split("_")  # parse the style image's name
+            style_img = cv2.imread(style_dir + name[2] + '.jpg')  # style image
+            # style_img = cv2.resize(style_img, (256,256))
 
-        style_img = cv2.imread(style_dir + name[2] + '.jpg')  # style image
-        # style_img = cv2.resize(style_img, (256,256))
+            stylized_img = torch.tensor(stylized_img, dtype=torch.float)
+            stylized_img = stylized_img/255
+            stylized_img = torch.unsqueeze(stylized_img, dim=0)
+            stylized_img = stylized_img.permute([0, 3, 1, 2])
+            stylized_img = stylized_img.cuda().to(device)
 
-        stylized_img = torch.tensor(stylized_img, dtype=torch.float)
-        stylized_img = stylized_img/255
-        stylized_img = torch.unsqueeze(stylized_img, dim=0)
-        stylized_img = stylized_img.permute([0, 3, 1, 2])
-        stylized_img = stylized_img.cuda().to(device)
-
-        style_img = torch.tensor(style_img, dtype=torch.float)
-        style_img = style_img/255
-        style_img = torch.unsqueeze(style_img, dim=0)
-        style_img = style_img.permute([0, 3, 1, 2])
-        style_img = style_img.cuda().to(device)
-
-
-        loss_s = 0.
-
-        o1_1 = enc_1(stylized_img)
-        s1_1 = enc_1(style_img)
-        loss_s += calc_style_loss(o1_1,s1_1)
-
-        o2_1 = enc_2(o1_1)
-        s2_1 = enc_2(s1_1)
-        loss_s += calc_style_loss(o2_1,s2_1)
+            style_img = torch.tensor(style_img, dtype=torch.float)
+            style_img = style_img/255
+            style_img = torch.unsqueeze(style_img, dim=0)
+            style_img = style_img.permute([0, 3, 1, 2])
+            style_img = style_img.cuda().to(device)
 
 
-        o3_1 = enc_3(o2_1)
-        s3_1 = enc_3(s2_1)
-        loss_s += calc_style_loss(o3_1,s3_1)
+            loss_s = 0.
+
+            o1_1 = enc_1(stylized_img)
+            s1_1 = enc_1(style_img)
+            loss_s += calc_style_loss(o1_1,s1_1)
+
+            o2_1 = enc_2(o1_1)
+            s2_1 = enc_2(s1_1)
+            loss_s += calc_style_loss(o2_1,s2_1)
 
 
-        o4_1 = enc_4(o3_1)
-        s4_1 = enc_4(s3_1)
-        loss_s += calc_style_loss(o4_1,s4_1)
-
-        o5_1 = enc_5(o4_1)
-        s5_1 = enc_5(s4_1)
-        loss_s += calc_style_loss(o5_1,s5_1)
-
-        print ("Style Loss: {}".format(loss_s/5))
-        loss_s_sum += float(loss_s/5)
-        count += 1
+            o3_1 = enc_3(o2_1)
+            s3_1 = enc_3(s2_1)
+            loss_s += calc_style_loss(o3_1,s3_1)
 
 
-    print ("Total num: {}".format(count))
-    print ("Average Style Loss: {}".format(loss_s_sum/count))
+            o4_1 = enc_4(o3_1)
+            s4_1 = enc_4(s3_1)
+            loss_s += calc_style_loss(o4_1,s4_1)
+
+            o5_1 = enc_5(o4_1)
+            s5_1 = enc_5(s4_1)
+            loss_s += calc_style_loss(o5_1,s5_1)
+
+            print ("Style Loss: {}".format(loss_s/5))
+            loss_s_sum += float(loss_s/5)
+            count += 1
 
 
-if args.mode == 1 or args.mode == 2:
-    loss_c_sum  = 0.
-    count = 0
-
-    for stylized in stylized_files:
-        stylized_img = cv2.imread(stylized_dir + stylized)   # stylized image
-        # stylized_img = cv2.resize(stylized_img, (256,256))
-
-        name = stylized.split("_")  # parse the content image's name
-
-        content_img = cv2.imread(content_dir + name[0] + '.jpg')   # content image
-        # content_img = cv2.resize(content_img, (256,256))
-
-        stylized_img = torch.tensor(stylized_img, dtype=torch.float)
-        stylized_img = stylized_img/255
-        stylized_img = torch.unsqueeze(stylized_img, dim=0)
-        stylized_img = stylized_img.permute([0, 3, 1, 2])
-        stylized_img = stylized_img.cuda().to(device)
-
-        content_img = torch.tensor(content_img, dtype=torch.float)
-        content_img = content_img/255
-        content_img = torch.unsqueeze(content_img, dim=0)
-        content_img = content_img.permute([0, 3, 1, 2])
-        content_img = content_img.cuda().to(device)
-
-        loss_c = 0.
-
-        o1 = enc_4(enc_3(enc_2(enc_1(stylized_img))))
-        c1 = enc_4(enc_3(enc_2(enc_1(content_img))))
-
-        loss_c += calc_content_loss(o1,c1)
-
-        o2 = enc_5(o1)
-        c2 = enc_5(c1)
-        loss_c += calc_content_loss(o2,c2)
+        print ("Total num: {}".format(count))
+        print ("Average Style Loss: {}".format(loss_s_sum/count))
 
 
-        print ("Content Loss: {}".format(loss_c/2))
-        loss_c_sum += float(loss_c/2)
-        count += 1
+    if args.mode == 1 or args.mode == 2:
+        loss_c_sum  = 0.
+        count = 0
+
+        for stylized in stylized_files:
+            stylized_img = cv2.imread(stylized_dir + stylized)   # stylized image
+            # stylized_img = cv2.resize(stylized_img, (256,256))
+
+            name = stylized.split("_")  # parse the content image's name
+
+            content_img = cv2.imread(content_dir + name[0] + '.jpg')   # content image
+            # content_img = cv2.resize(content_img, (256,256))
+
+            stylized_img = torch.tensor(stylized_img, dtype=torch.float)
+            stylized_img = stylized_img/255
+            stylized_img = torch.unsqueeze(stylized_img, dim=0)
+            stylized_img = stylized_img.permute([0, 3, 1, 2])
+            stylized_img = stylized_img.cuda().to(device)
+
+            content_img = torch.tensor(content_img, dtype=torch.float)
+            content_img = content_img/255
+            content_img = torch.unsqueeze(content_img, dim=0)
+            content_img = content_img.permute([0, 3, 1, 2])
+            content_img = content_img.cuda().to(device)
+
+            loss_c = 0.
+
+            o1 = enc_4(enc_3(enc_2(enc_1(stylized_img))))
+            c1 = enc_4(enc_3(enc_2(enc_1(content_img))))
+
+            loss_c += calc_content_loss(o1,c1)
+
+            o2 = enc_5(o1)
+            c2 = enc_5(c1)
+            loss_c += calc_content_loss(o2,c2)
 
 
-    print ("Total num: {}".format(count))
-    print ("Average Content Loss: {}".format(loss_c_sum/count))
+            print ("Content Loss: {}".format(loss_c/2))
+            loss_c_sum += float(loss_c/2)
+            count += 1
+
+
+        print ("Total num: {}".format(count))
+        print ("Average Content Loss: {}".format(loss_c_sum/count))
 
 
 
